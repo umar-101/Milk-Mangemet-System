@@ -1,0 +1,150 @@
+{
+  "info": {
+    "name": "MilkMS Accounts API",
+    "_postman_id": "f6f1c1d0-1234-5678-abcd-9876543210ab",
+    "description": "Complete Postman collection for accounts API (Super Admin & Vendor management)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Super Admin Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"superadmin\",\n    \"password\": \"superadminpassword\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/token/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "token", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Vendor",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"vendor1\",\n    \"email\": \"vendor1@example.com\",\n    \"first_name\": \"Vendor\",\n    \"last_name\": \"One\",\n    \"role\": \"vendor\",\n    \"vendor\": \"Vendor One\",\n    \"subscription_active\": true,\n    \"password\": \"vendorpassword\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/users/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "users", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "List Users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/users/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "users", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve Vendor",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/users/1/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "users", "1", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Vendor",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"vendor1\",\n    \"email\": \"vendor1_updated@example.com\",\n    \"first_name\": \"Vendor\",\n    \"last_name\": \"One Updated\",\n    \"role\": \"vendor\",\n    \"vendor\": \"Vendor One\",\n    \"subscription_active\": false,\n    \"password\": \"newpassword\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/users/1/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "users", "1", ""]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Vendor",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/accounts/users/1/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api", "accounts", "users", "1", ""]
+        }
+      },
+      "response": []
+    }
+  ]
+}

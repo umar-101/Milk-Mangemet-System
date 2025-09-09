@@ -1,0 +1,342 @@
+{
+  "info": {
+    "name": "Django Project API",
+    "_postman_id": "d0f8e7ab-1234-5678-90ab-cdef12345678",
+    "description": "Postman collection for accounts, inventory, sales, and reports apps",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Accounts App",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/users/", "host": ["{{base_url}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"vendor1\",\n  \"email\": \"vendor1@example.com\",\n  \"first_name\": \"Vendor\",\n  \"last_name\": \"One\",\n  \"role\": \"vendor_staff\",\n  \"vendor\": \"VendorX\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/users/", "host": ["{{base_url}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Get Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"superadmin\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/token/", "host": ["{{base_url}}"], "path": ["token"] }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/token/refresh/", "host": ["{{base_url}}"], "path": ["token","refresh"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory App",
+      "item": [
+        {
+          "name": "Suppliers",
+          "item": [
+            {
+              "name": "List Suppliers",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/suppliers/", "host": ["{{base_url}}"], "path": ["suppliers"] }
+              }
+            },
+            {
+              "name": "Create Supplier",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Dairy Supplier\",\n  \"supplier_type\": \"dairy\",\n  \"contact_email\": \"dairy@example.com\",\n  \"default_purchase_rate\": 50.5,\n  \"default_purchase_quantity\": 100.0\n}"
+                },
+                "url": { "raw": "{{base_url}}/suppliers/", "host": ["{{base_url}}"], "path": ["suppliers"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Purchases",
+          "item": [
+            {
+              "name": "List Purchases",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/purchases/", "host": ["{{base_url}}"], "path": ["purchases"] }
+              }
+            },
+            {
+              "name": "Create Purchase",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"supplier\": 1,\n  \"quantity\": 50,\n  \"rate\": 45.5,\n  \"transport_cost\": 10,\n  \"payment_status\": \"pending\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/purchases/", "host": ["{{base_url}}"], "path": ["purchases"] }
+              }
+            },
+            {
+              "name": "Duplicate Purchase",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/purchases/{{purchase_id}}/duplicate/", "host": ["{{base_url}}"], "path": ["purchases","{{purchase_id}}","duplicate"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock",
+          "item": [
+            {
+              "name": "List Stock",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/stock/", "host": ["{{base_url}}"], "path": ["stock"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stock Movements",
+          "item": [
+            {
+              "name": "List Stock Movements",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/stock-movements/", "host": ["{{base_url}}"], "path": ["stock-movements"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Expense Categories",
+          "item": [
+            {
+              "name": "List Expense Categories",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/expense-categories/", "host": ["{{base_url}}"], "path": ["expense-categories"] }
+              }
+            },
+            {
+              "name": "Create Expense Category",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Transport\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/expense-categories/", "host": ["{{base_url}}"], "path": ["expense-categories"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Expenses",
+          "item": [
+            {
+              "name": "List Expenses",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/expenses/", "host": ["{{base_url}}"], "path": ["expenses"] }
+              }
+            },
+            {
+              "name": "Create Expense",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category\": 1,\n  \"amount\": 1000,\n  \"description\": \"Truck fuel\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/expenses/", "host": ["{{base_url}}"], "path": ["expenses"] }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sales App",
+      "item": [
+        {
+          "name": "Shops",
+          "item": [
+            {
+              "name": "List Shops",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/shops/", "host": ["{{base_url}}"], "path": ["shops"] }
+              }
+            },
+            {
+              "name": "Create Shop",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Shop A\",\n  \"contact\": \"123456789\",\n  \"address\": \"123 Main St\",\n  \"delivery_route\": \"Route 1\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/shops/", "host": ["{{base_url}}"], "path": ["shops"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Wholesale Sales",
+          "item": [
+            {
+              "name": "List Wholesale Sales",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/wholesale-sales/", "host": ["{{base_url}}"], "path": ["wholesale-sales"] }
+              }
+            },
+            {
+              "name": "Create Wholesale Sale",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"shop\": 1,\n  \"quantity\": 100,\n  \"rate\": 75.5,\n  \"payment_status\": \"pending\",\n  \"notes\": \"First order\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/wholesale-sales/", "host": ["{{base_url}}"], "path": ["wholesale-sales"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retail Customers",
+          "item": [
+            {
+              "name": "List Retail Customers",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/retail-customers/", "host": ["{{base_url}}"], "path": ["retail-customers"] }
+              }
+            },
+            {
+              "name": "Create Retail Customer",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Customer 1\",\n  \"contact\": \"987654321\",\n  \"address\": \"456 Market St\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/retail-customers/", "host": ["{{base_url}}"], "path": ["retail-customers"] }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Retail Sales",
+          "item": [
+            {
+              "name": "List Retail Sales",
+              "request": {
+                "method": "GET",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "url": { "raw": "{{base_url}}/retail-sales/", "host": ["{{base_url}}"], "path": ["retail-sales"] }
+              }
+            },
+            {
+              "name": "Create Retail Sale",
+              "request": {
+                "method": "POST",
+                "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"customer\": 1,\n  \"quantity\": 20,\n  \"rate\": 80.0,\n  \"payment_status\": \"pending\",\n  \"notes\": \"Daily sale\"\n}"
+                },
+                "url": { "raw": "{{base_url}}/retail-sales/", "host": ["{{base_url}}"], "path": ["retail-sales"] }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Reports App",
+      "item": [
+        {
+          "name": "Purchase Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/reports/purchases-summary/", "host": ["{{base_url}}"], "path": ["reports","purchases-summary"] }
+          }
+        },
+        {
+          "name": "Sales Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/reports/sales-summary/", "host": ["{{base_url}}"], "path": ["reports","sales-summary"] }
+          }
+        },
+        {
+          "name": "Expenses Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/reports/expenses-summary/", "host": ["{{base_url}}"], "path": ["reports","expenses-summary"] }
+          }
+        },
+        {
+          "name": "Stock Summary",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/reports/stock-summary/", "host": ["{{base_url}}"], "path": ["reports","stock-summary"] }
+          }
+        }
+      ]
+    }
+  ]
+}

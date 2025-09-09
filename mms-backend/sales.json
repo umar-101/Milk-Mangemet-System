@@ -1,0 +1,191 @@
+{
+  "info": {
+    "name": "Sales App API",
+    "_postman_id": "c5a1a7b1-9876-4321-b123-abcdef987654",
+    "description": "Postman collection for testing Sales app APIs under api/sales/",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Shops",
+      "item": [
+        {
+          "name": "Create Shop",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Market\",\n  \"location\": \"Main Street\",\n  \"owner\": \"John Doe\"\n}"
+            },
+            "url": { "raw": "http://localhost:8000/api/sales/shops/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops"] }
+          }
+        },
+        { "name": "Get All Shops", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/shops/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops"] } } },
+        { "name": "Get Shop by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/shops/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops", "1"] } } },
+        {
+          "name": "Update Shop (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Downtown Supermarket\",\n  \"location\": \"Main Street 22\",\n  \"owner\": \"Jane Smith\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/shops/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops", "1"] }
+          }
+        },
+        {
+          "name": "Partial Update Shop (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"owner\": \"Mike Johnson\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/shops/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops", "1"] }
+          }
+        },
+        { "name": "Delete Shop", "request": { "method": "DELETE", "url": { "raw": "http://localhost:8000/api/sales/shops/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "shops", "1"] } } }
+      ]
+    },
+    {
+      "name": "Wholesale Sales",
+      "item": [
+        {
+          "name": "Create Wholesale Sale",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shop\": 1,\n  \"stock\": 1,\n  \"quantity\": 100,\n  \"rate\": 15.00,\n  \"date\": \"2025-08-15\"\n}"
+            },
+            "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales"] }
+          }
+        },
+        { "name": "Get All Wholesale Sales", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales"] } } },
+        { "name": "Get Wholesale Sale by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales", "1"] } } },
+        {
+          "name": "Update Wholesale Sale (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"shop\": 1,\n  \"stock\": 1,\n  \"quantity\": 120,\n  \"rate\": 14.50,\n  \"date\": \"2025-08-16\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales", "1"] }
+          }
+        },
+        {
+          "name": "Partial Update Wholesale Sale (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"rate\": 13.75\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales", "1"] }
+          }
+        },
+        { "name": "Delete Wholesale Sale", "request": { "method": "DELETE", "url": { "raw": "http://localhost:8000/api/sales/wholesale-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "wholesale-sales", "1"] } } }
+      ]
+    },
+    {
+      "name": "Retail Customers",
+      "item": [
+        {
+          "name": "Create Retail Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Alice Brown\",\n  \"phone\": \"555-1234\",\n  \"address\": \"45 Elm Street\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-customers/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers"] }
+          }
+        },
+        { "name": "Get All Retail Customers", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/retail-customers/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers"] } } },
+        { "name": "Get Retail Customer by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/retail-customers/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers", "1"] } } },
+        {
+          "name": "Update Retail Customer (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Alice Johnson\",\n  \"phone\": \"555-5678\",\n  \"address\": \"45 Oak Avenue\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-customers/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers", "1"] }
+          }
+        },
+        {
+          "name": "Partial Update Retail Customer (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"555-9876\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-customers/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers", "1"] }
+          }
+        },
+        { "name": "Delete Retail Customer", "request": { "method": "DELETE", "url": { "raw": "http://localhost:8000/api/sales/retail-customers/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-customers", "1"] } } }
+      ]
+    },
+    {
+      "name": "Retail Sales",
+      "item": [
+        {
+          "name": "Create Retail Sale",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customer\": 1,\n  \"stock\": 1,\n  \"quantity\": 5,\n  \"rate\": 20.00,\n  \"date\": \"2025-08-15\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-sales/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales"] }
+          }
+        },
+        { "name": "Get All Retail Sales", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/retail-sales/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales"] } } },
+        { "name": "Get Retail Sale by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/retail-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales", "1"] } } },
+        {
+          "name": "Update Retail Sale (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"customer\": 1,\n  \"stock\": 1,\n  \"quantity\": 6,\n  \"rate\": 19.50,\n  \"date\": \"2025-08-16\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales", "1"] }
+          }
+        },
+        {
+          "name": "Partial Update Retail Sale (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"quantity\": 8\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/retail-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales", "1"] }
+          }
+        },
+        { "name": "Delete Retail Sale", "request": { "method": "DELETE", "url": { "raw": "http://localhost:8000/api/sales/retail-sales/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "retail-sales", "1"] } } }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sale_type\": \"wholesale\",\n  \"sale_id\": 1,\n  \"amount\": 1500,\n  \"date\": \"2025-08-15\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/payments/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments"] }
+          }
+        },
+        { "name": "Get All Payments", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/payments/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments"] } } },
+        { "name": "Get Payment by ID", "request": { "method": "GET", "url": { "raw": "http://localhost:8000/api/sales/payments/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments", "1"] } } },
+        {
+          "name": "Update Payment (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sale_type\": \"wholesale\",\n  \"sale_id\": 1,\n  \"amount\": 1600,\n  \"date\": \"2025-08-16\"\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/payments/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments", "1"] }
+          }
+        },
+        {
+          "name": "Partial Update Payment (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": 1700\n}" },
+            "url": { "raw": "http://localhost:8000/api/sales/payments/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments", "1"] }
+          }
+        },
+        { "name": "Delete Payment", "request": { "method": "DELETE", "url": { "raw": "http://localhost:8000/api/sales/payments/1/", "protocol": "http", "host": ["localhost"], "port": "8000", "path": ["api", "sales", "payments", "1"] } } }
+      ]
+    }
+  ]
+}

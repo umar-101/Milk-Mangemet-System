@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "Inventory App API",
+    "_postman_id": "dcb0e1f3-1234-5678-9101-abcdef123456",
+    "description": "Postman collection for testing Inventory app APIs under api/inventory/",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Suppliers",
+      "item": [
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Supplies\",\n  \"contact\": \"123-456-7890\",\n  \"address\": \"123 Main Street, Springfield\",\n  \"active\": true\n}"
+            },
+            "url": {"raw": "http://localhost:8000/api/inventory/suppliers/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","suppliers"]}
+          }
+        },
+        {
+          "name": "Get All Suppliers",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:8000/api/inventory/suppliers/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","suppliers"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"name\": \"Premium Olive Oil\",\n  \"description\": \"Extra virgin olive oil, 1 liter bottle\",\n  \"unit\": \"liter\"\n}"},
+            "url": {"raw":"http://localhost:8000/api/inventory/products/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","products"]}
+          }
+        },
+        {
+          "name": "Get All Products",
+          "request": {"method":"GET","url":{"raw":"http://localhost:8000/api/inventory/products/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","products"]}}
+        }
+      ]
+    },
+    {
+      "name": "Purchases",
+      "item": [
+        {
+          "name": "Create Purchase",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"supplier\": 1,\n  \"product\": 1,\n  \"quantity\": 50,\n  \"rate\": 10.50,\n  \"notes\": \"First batch of olive oil\",\n  \"created_by\": 1\n}"},
+            "url": {"raw":"http://localhost:8000/api/inventory/purchases/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","purchases"]}
+          }
+        },
+        {
+          "name": "Get All Purchases",
+          "request": {"method":"GET","url":{"raw":"http://localhost:8000/api/inventory/purchases/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","purchases"]}}
+        }
+      ]
+    },
+    {
+      "name": "Stocks",
+      "item": [
+        {
+          "name": "Get All Stocks",
+          "request": {"method":"GET","url":{"raw":"http://localhost:8000/api/inventory/stocks/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","stocks"]}}
+        }
+      ]
+    },
+    {
+      "name": "Stock Movements",
+      "item": [
+        {
+          "name": "Create Stock Movement",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type","value": "application/json"}],
+            "body": {"mode":"raw","raw":"{\n  \"product\": 1,\n  \"quantity\": 10,\n  \"movement_type\": \"out\",\n  \"notes\": \"Sold 10 bottles to local shop\",\n  \"created_by\": 1\n}"},
+            "url": {"raw":"http://localhost:8000/api/inventory/stock-movements/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","stock-movements"]}
+          }
+        },
+        {
+          "name": "Get All Stock Movements",
+          "request": {"method":"GET","url":{"raw":"http://localhost:8000/api/inventory/stock-movements/","protocol":"http","host":["localhost"],"port":"8000","path":["api","inventory","stock-movements"]}}
+        }
+      ]
+    }
+  ]
+}
