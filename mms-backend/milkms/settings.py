@@ -157,3 +157,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),   # instead of 5 mins
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),      # users stay logged in for 7 days
+    "ROTATE_REFRESH_TOKENS": True,                    # issue new refresh on each use
+    "BLACKLIST_AFTER_ROTATION": True,                 # old refresh tokens become invalid
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}

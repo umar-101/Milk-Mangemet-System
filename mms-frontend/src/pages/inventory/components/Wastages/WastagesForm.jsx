@@ -1,72 +1,131 @@
-import { useState, useEffect } from "react";
-import "../Form.scss"; // adjust path according to your folder structure
+import * as React from "react";
+import PropTypes from "prop-types";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 
-const WastagesForm = ({ onSubmit, products = [], initialData }) => {
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [reason, setReason] = useState("");
+export default function WastageForm({ open, onClose, onSubmit, products }) {
+  const [product, setProduct] = React.useState("");
+  const [quantity, setQuantity] = React.useState("");
+  const [reason, setReason] = React.useState("");
+  const [errors, setErrors] = React.useState({});
 
-  // Populate form when editing
-  useEffect(() => {
-    if (initialData) {
-      setProductId(initialData.product);
-      setQuantity(initialData.quantity);
-      setReason(initialData.reason);
-    }
-  }, [initialData]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!productId || !quantity) return;
-    onSubmit({ product: productId, quantity: parseFloat(quantity), reason });
-    if (!initialData) {
-      setProductId("");
+  React.useEffect(() => {
+    if (open) {
+      setProduct("");
       setQuantity("");
       setReason("");
+      setErrors({});
     }
+  }, [open]);
+
+  const selectedProduct = products.find((p) => p.id === product);
+  const maxQuantity = selectedProduct?.stock_quantity || 0;
+
+
+  const validate = () => {
+    const newErrors = {};
+    if (!product) newErrors.product = "Product is required";
+    if (!quantity || parseFloat(quantity) <= 0)
+      newErrors.quantity = "Quantity must be greater than 0";
+    else if (parseFloat(quantity) > maxQuantity)
+      newErrors.quantity = `Cannot exceed available stock (${maxQuantity})`;
+    if (!reason.trim()) newErrors.reason = "Reason is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    onSubmit({
+      product,
+      quantity: parseFloat(quantity),
+      reason: reason.trim(),
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <label htmlFor="product">Product</label>
-      <select
-        id="product"
-        value={productId}
-        onChange={(e) => setProductId(e.target.value)}
-        required
-      >
-        <option value="">Select Product</option>
-        {products.map((p) => (
-          <option key={p.id} value={p.id}>{p.name}</option>
-        ))}
-      </select>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Record Wastage</DialogTitle>
+      <DialogContent dividers>
+        {/* Product Dropdown */}
+        <TextField
+          select
+          label="Product"
+          value={product}
+          onChange={(e) => setProduct(e.target.value)}
+          fullWidth
+          margin="normal"
+          error={!!errors.product}
+          helperText={errors.product}
+        >
+          {products && products.length > 0 ? (
+            products.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name}
+              </MenuItem>
+            ))
+          ) : (
+            <MenuItem disabled>No products available</MenuItem>
+          )}
+        </TextField>
 
-      <label htmlFor="quantity">Quantity</label>
-      <input
-        id="quantity"
-        type="number"
-        value={quantity}
-        onChange={(e) => setQuantity(e.target.value)}
-        required
-        min="0.001"
-        step="0.001"
-        placeholder="Enter quantity"
-      />
+        {/* Quantity Input */}
+        <TextField
+          type="number"
+          label="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          fullWidth
+          margin="normal"
+          error={!!errors.quantity}
+        />
+        <Typography variant="caption" color="textSecondary" display="block" gutterBottom>
+          Available stock: {maxQuantity}
+        </Typography>
 
-      <label htmlFor="reason">Reason</label>
-      <input
-        id="reason"
-        type="text"
-        value={reason}
-        onChange={(e) => setReason(e.target.value)}
-        placeholder="Enter reason"
-      />
+        {/* Reason Input */}
+        <TextField
+          label="Reason"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          fullWidth
+          margin="normal"
+          required
+          multiline
+          rows={3}
+          error={!!errors.reason}
+          helperText={errors.reason}
+        />
+      </DialogContent>
 
-      <button type="submit">
-        {initialData ? "Update Wastage" : "Record Wastage"}
-      </button>
-    </form>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={handleSubmit}
+          disabled={!product || !quantity || !reason.trim()}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
-};
+}
 
-export default WastagesForm;
+WastageForm.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  products: PropTypes.array.isRequired,
+};

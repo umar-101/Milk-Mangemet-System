@@ -5,7 +5,7 @@ from django.db.models import Sum, F
 from .models import SystemSetting, Report
 from .serializers import SystemSettingSerializer, ReportSerializer
 from inventory.models import Purchase, Expense, StockMovement
-from sales.models import WholesaleSale, RetailSale, Payment, Shop
+from sales.models import WholesaleSale, RetailSale, Shop
 
 class SystemSettingViewSet(viewsets.ModelViewSet):
     queryset = SystemSetting.objects.all()

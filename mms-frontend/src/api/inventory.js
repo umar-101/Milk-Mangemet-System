@@ -35,9 +35,9 @@ export const getStockMovements = () => client.get("inventory/stock-movements/");
 export const createStockMovement = (data) => client.post("inventory/stock-movements/", data);
 
 // ------- WASTAGES -------
-export const getWastages = () => client.get("wastages/");
-export const createWastage = (data) => client.post("wastages/", data);
+export const getWastages = () => client.get("inventory/wastages/");
+export const createWastage = (data) => client.post("inventory/wastages/", data);
 
 // ------- EXPENSES -------
-export const getExpenses = () => client.get("expenses/");
-export const createExpense = (data) => client.post("expenses/", data);
+export const getExpenses = () => client.get("inventory/expenses/");
+export const createExpense = (data) => client.post("inventory/expenses/", data);

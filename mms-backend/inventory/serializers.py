@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Supplier, Product, Stock, Purchase, StockMovement, Wastage, Expense
-
+from django.db.models import Sum, F, Q
 VALID_UNITS = ['liter', 'kg']
 
 
@@ -11,14 +11,15 @@ class SupplierSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    stock_quantity = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ['id', 'name', 'description', 'unit']
+        fields = ['id', 'name', 'description', 'unit', 'stock_quantity']
 
-    def validate_unit(self, value):
-        if value not in VALID_UNITS:
-            raise serializers.ValidationError(f"Unit must be one of {VALID_UNITS}")
-        return value
+    def get_stock_quantity(self, obj):
+        stock = getattr(obj, "stock", None)
+        return stock.quantity if stock else 0
 
 
 # serializers.py
@@ -45,24 +46,27 @@ class PurchaseSerializer(serializers.ModelSerializer):
             'supplier',
             'product',
             'quantity',
-            'extra_ice',   # <- add this
+            'extra_ice',
             'rate',
-            'total_amount', # optional if you want frontend to receive stored total
+            'total_amount',
             'notes',
             'created_by',
             'date_time'
         ]
+        read_only_fields = ['created_by', 'total_amount', 'date_time']
 
-    def validate_quantity(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Purchase quantity must be greater than zero")
-        return value
+    def create(self, validated_data):
+        # attach request.user automatically
+        request = self.context.get('request')
+        if request and hasattr(request, "user"):
+            validated_data['created_by'] = request.user
 
-    def validate(self, data):
-        # Ensure product is valid
-        if not data.get("product"):
-            raise serializers.ValidationError("Purchase must be linked to a valid product.")
-        return data
+        # use model's save() logic so stock gets updated
+        purchase = Purchase(**validated_data)
+        purchase.save()
+        return purchase
+
+
 
 
 class StockMovementSerializer(serializers.ModelSerializer):
@@ -93,21 +97,44 @@ class StockMovementSerializer(serializers.ModelSerializer):
 
 
 
+
 class WastageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wastage
         fields = ['id', 'product', 'quantity', 'reason', 'date_time', 'created_by']
+        read_only_fields = ['created_by', 'date_time']
 
     def validate_quantity(self, value):
         if value <= 0:
             raise serializers.ValidationError("Wastage quantity must be greater than zero")
         return value
 
+    def validate(self, data):
+        product = data['product']
+        quantity = data['quantity']
+
+        stock = getattr(product, 'stock', None)
+        available_stock = stock.quantity if stock else 0
+
+        if quantity > available_stock:
+            raise serializers.ValidationError(
+                f"Cannot mark {quantity} as wastage; only {available_stock} available."
+            )
+        return data
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, "user"):
+            validated_data['created_by'] = request.user
+
+        # Just create → model's save() will handle stock + StockMovement
+        return Wastage.objects.create(**validated_data)
+
 
 class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
-        fields = ['id', 'name', 'amount', 'date']
+        fields = ["id", "name", "category", "amount", "date", "description"]
 
     def validate_amount(self, value):
         if value <= 0:

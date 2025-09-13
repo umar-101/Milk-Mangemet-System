@@ -1,6 +1,12 @@
 from rest_framework import serializers
-from .models import Shop, WholesaleSale, RetailCustomer, RetailSale, Payment
-from inventory.models import Stock
+from .models import (
+    Shop,
+    WholesaleSale,
+    RetailCustomer,
+    RetailSale,
+    Subscription,
+    SubscriptionException,
+)
 
 
 # ---------------- Shop Serializer ---------------- #
@@ -61,10 +67,20 @@ class RetailSaleSerializer(serializers.ModelSerializer):
         return data
 
 
-# ---------------- Payment Serializer ---------------- #
-class PaymentSerializer(serializers.ModelSerializer):
+# ---------------- Subscription Serializer ---------------- #
+class SubscriptionSerializer(serializers.ModelSerializer):
     customer_name = serializers.CharField(source='customer.name', read_only=True)
+    shop_name = serializers.CharField(source='shop.name', read_only=True)
 
     class Meta:
-        model = Payment
+        model = Subscription
+        fields = '__all__'
+
+
+# ---------------- Subscription Exception Serializer ---------------- #
+class SubscriptionExceptionSerializer(serializers.ModelSerializer):
+    subscription_info = serializers.CharField(source='subscription.__str__', read_only=True)
+
+    class Meta:
+        model = SubscriptionException
         fields = '__all__'

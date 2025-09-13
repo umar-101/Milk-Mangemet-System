@@ -1,40 +1,134 @@
-import { useState, useEffect } from "react";
-import "../../Form.scss";
+// ExpensesForm.jsx
+import * as React from "react";
+import PropTypes from "prop-types";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+} from "@mui/material";
 
-const ExpensesForm = ({ onSubmit, initialData }) => {
-  const [name, setName] = useState("Default Expense");
-  const [amount, setAmount] = useState("");
-  const [date, setDate] = useState("");
+const categories = [
+  { value: "electricity", label: "Electricity" },
+  { value: "salary", label: "Salary" },
+  { value: "food", label: "Food/Tea" },
+  { value: "services", label: "Services" },
+  { value: "petrol", label: "Petrol" },
+  { value: "other", label: "Other" },
+];
 
-  useEffect(() => {
-    if (initialData) {
-      setName(initialData.name);
-      setAmount(initialData.amount);
-      setDate(initialData.date);
+export default function ExpensesForm({ open, onClose, onSubmit }) {
+  const [name, setName] = React.useState("");
+  const [category, setCategory] = React.useState("other");
+  const [amount, setAmount] = React.useState("");
+  const [description, setDescription] = React.useState("");
+  const [errors, setErrors] = React.useState({});
+
+  React.useEffect(() => {
+    if (open) {
+      setName("");
+      setCategory("other");
+      setAmount("");
+      setDescription("");
+      setErrors({});
     }
-  }, [initialData]);
+  }, [open]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!name || !amount || !date) return;
-    onSubmit({ name, amount: parseFloat(amount), date });
-    if (!initialData) setName("Default Expense"); setAmount(""); setDate("");
+  const validate = () => {
+    const newErrors = {};
+    if (!name.trim()) newErrors.name = "Name is required";
+    if (!amount || parseFloat(amount) <= 0)
+      newErrors.amount = "Amount must be greater than 0";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+
+    // Always use current date/time
+    const finalDate = new Date().toISOString();
+
+    onSubmit({
+      name: name.trim(),
+      category,
+      amount: parseFloat(amount),
+      date: finalDate,
+      description: description.trim(),
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="form-container">
-      <label>Name</label>
-      <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Add Expense</DialogTitle>
+      <DialogContent dividers>
+        <TextField
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+          margin="normal"
+          error={!!errors.name}
+          helperText={errors.name}
+        />
 
-      <label>Amount</label>
-      <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} min="0.01" step="0.01" required />
+        <TextField
+          select
+          label="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          fullWidth
+          margin="normal"
+        >
+          {categories.map((c) => (
+            <MenuItem key={c.value} value={c.value}>
+              {c.label}
+            </MenuItem>
+          ))}
+        </TextField>
 
-      <label>Date</label>
-      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        <TextField
+          type="number"
+          label="Amount"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          fullWidth
+          margin="normal"
+          error={!!errors.amount}
+          helperText={errors.amount}
+        />
 
-      <button type="submit">{initialData ? "Update Expense" : "Add Expense"}</button>
-    </form>
+        <TextField
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          fullWidth
+          margin="normal"
+          multiline
+          rows={3}
+        />
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={!name || !amount}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
-};
+}
 
-export default ExpensesForm;
+ExpensesForm.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};

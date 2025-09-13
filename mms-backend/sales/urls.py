@@ -5,7 +5,8 @@ from .views import (
     WholesaleSaleViewSet,
     RetailCustomerViewSet,
     RetailSaleViewSet,
-    PaymentViewSet
+    SubscriptionViewSet,
+    SubscriptionExceptionViewSet,
 )
 
 router = DefaultRouter()
@@ -13,7 +14,8 @@ router.register(r'shops', ShopViewSet)
 router.register(r'wholesale-sales', WholesaleSaleViewSet)
 router.register(r'retail-customers', RetailCustomerViewSet)
 router.register(r'retail-sales', RetailSaleViewSet)
-router.register(r'payments', PaymentViewSet)
+router.register(r'subscriptions', SubscriptionViewSet)  # ✅ new
+router.register(r'subscription-exceptions', SubscriptionExceptionViewSet)  # ✅ new
 
 urlpatterns = [
     path('', include(router.urls)),

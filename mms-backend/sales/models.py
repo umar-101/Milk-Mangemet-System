@@ -1,12 +1,16 @@
+# sales/models.py
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from inventory.models import Supplier, Stock, Purchase
+
+from inventory.models import Stock, Purchase, StockMovement
 
 
 class Shop(models.Model):
-    PAYMENT_PREFS = (('cash','Cash'),('credit','Credit'))
+    PAYMENT_PREFS = (('cash', 'Cash'), ('credit', 'Credit'))
+
     name = models.CharField(max_length=200)
     contact = models.CharField(max_length=100, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -28,15 +32,15 @@ class ShippingShift(models.TextChoices):
 
 # ---------------- Wholesale Sale ---------------- #
 class WholesaleSale(models.Model):
-    PAYMENT_STATUS = (('paid','Paid'),('pending','Pending'),('partial','Partial'))
+    PAYMENT_STATUS = (('paid', 'Paid'), ('pending', 'Pending'), ('partial', 'Partial'))
 
     shop = models.ForeignKey(Shop, related_name='wholesale_sales', on_delete=models.PROTECT)
     date_time = models.DateTimeField(default=timezone.now)
     shift = models.CharField(max_length=20, choices=ShippingShift.choices, blank=True, null=True)
 
     stock = models.ForeignKey(Stock, related_name='wholesale_sales', on_delete=models.PROTECT)
-    quantity = models.DecimalField(max_digits=12, decimal_places=3)  # milk liters taken from stock
-    added_water = models.DecimalField(max_digits=12, decimal_places=3, default=0)  # water added (zero cost)
+    quantity = models.DecimalField(max_digits=12, decimal_places=3)
+    added_water = models.DecimalField(max_digits=12, decimal_places=3, default=0)
 
     rate = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -54,6 +58,12 @@ class WholesaleSale(models.Model):
         related_name='sales_wholesalesales'
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["date_time"]),
+            models.Index(fields=["payment_status"]),
+        ]
+
     @property
     def delivered_quantity(self):
         return (self.quantity or 0) + (self.added_water or 0)
@@ -67,28 +77,32 @@ class WholesaleSale(models.Model):
             raise ValidationError(f"Not enough stock. Available: {self.stock.quantity}")
 
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
         self.clean()
 
-        # Revenue = (milk + water) * rate - discount
+        # Revenue
         self.total_amount = (self.delivered_quantity * self.rate) - (self.discount or 0)
 
-        # Cost only for milk liters using latest purchase rate for this product
+        # Cost → latest purchase rate
         unit_cost = 0
-        if self.stock:
-            latest_purchase = Purchase.objects.filter(product=self.stock.product).order_by('-date_time').first()
-            if latest_purchase:
-                unit_cost = latest_purchase.rate
+        latest_purchase = Purchase.objects.filter(product=self.stock.product).order_by('-date_time').first()
+        if latest_purchase:
+            unit_cost = latest_purchase.rate
         self.cost = self.quantity * unit_cost
 
         # Profit
         self.profit = (self.total_amount or 0) - (self.cost or 0)
 
-        # Reduce stock by milk liters only
-        if self.stock:
-            self.stock.quantity -= self.quantity
-            self.stock.save()
-
         super().save(*args, **kwargs)
+
+        if is_new:
+            StockMovement.objects.create(
+                product=self.stock.product,
+                quantity=self.quantity,
+                movement_type='out',
+                notes=f"Wholesale sale to {self.shop.name}",
+                created_by=self.created_by,
+            )
 
 
 # ---------------- Retail ---------------- #
@@ -102,13 +116,14 @@ class RetailCustomer(models.Model):
 
 
 class RetailSale(models.Model):
-    PAYMENT_STATUS = (('paid','Paid'),('pending','Pending'))
+    PAYMENT_STATUS = (('paid', 'Paid'), ('pending', 'Pending'))
 
     customer = models.ForeignKey(RetailCustomer, related_name='sales', null=True, blank=True, on_delete=models.SET_NULL)
     date_time = models.DateTimeField(default=timezone.now)
+    shift = models.CharField(max_length=20, choices=ShippingShift.choices, blank=True, null=True)
 
     stock = models.ForeignKey(Stock, related_name='retail_sales', on_delete=models.PROTECT)
-    quantity = models.DecimalField(max_digits=12, decimal_places=3)  # milk liters taken from stock
+    quantity = models.DecimalField(max_digits=12, decimal_places=3)
     added_water = models.DecimalField(max_digits=12, decimal_places=3, default=0)
 
     rate = models.DecimalField(max_digits=10, decimal_places=2)
@@ -125,6 +140,12 @@ class RetailSale(models.Model):
         related_name='sales_retailsales'
     )
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["date_time"]),
+            models.Index(fields=["payment_status"]),
+        ]
+
     @property
     def delivered_quantity(self):
         return (self.quantity or 0) + (self.added_water or 0)
@@ -138,44 +159,60 @@ class RetailSale(models.Model):
             raise ValidationError(f"Not enough stock. Available: {self.stock.quantity}")
 
     def save(self, *args, **kwargs):
+        is_new = self._state.adding
         self.clean()
 
-        # Total charged = (milk + water) * rate
+        # Revenue
         self.total = self.delivered_quantity * self.rate
 
-        # Weighted average cost for milk liters only
-        weighted_cost = 0
+        # Weighted average cost
         purchases = Purchase.objects.filter(product=self.stock.product)
-        total_qty = sum((p.quantity for p in purchases), start=0)
-        if total_qty > 0:
-            total_cost = sum((p.quantity * p.rate for p in purchases), start=0)
-            weighted_cost = total_cost / total_qty
-
+        total_qty = sum((p.quantity for p in purchases), Decimal(0))
+        total_cost = sum((p.quantity * p.rate for p in purchases), Decimal(0))
+        weighted_cost = (total_cost / total_qty) if total_qty > 0 else 0
         self.cost = self.quantity * weighted_cost
 
         # Profit
         self.profit = (self.total or 0) - (self.cost or 0)
 
-        # Reduce stock by milk liters only
-        if self.stock:
-            self.stock.quantity -= self.quantity
-            self.stock.save()
-
         super().save(*args, **kwargs)
 
+        if is_new:
+            StockMovement.objects.create(
+                product=self.stock.product,
+                quantity=self.quantity,
+                movement_type='out',
+                notes=f"Retail sale to {self.customer.name if self.customer else 'Walk-in'}",
+                created_by=self.created_by,
+            )
 
-# ---------------- Payments ---------------- #
-class Payment(models.Model):
-    PAYMENT_DIRECTION = (('to_supplier','To Supplier'),('from_shop','From Shop'))
-    direction = models.CharField(max_length=20, choices=PAYMENT_DIRECTION)
-    supplier = models.ForeignKey(Supplier, null=True, blank=True, on_delete=models.CASCADE)
+
+# ---------------- Subscriptions ---------------- #
+class Subscription(models.Model):
+    customer = models.ForeignKey(RetailCustomer, null=True, blank=True, on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop, null=True, blank=True, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=12, decimal_places=2)
-    date = models.DateTimeField(default=timezone.now)
+    quantity = models.DecimalField(max_digits=12, decimal_places=3)
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    shift = models.CharField(max_length=20, choices=ShippingShift.choices)
+    start_date = models.DateField(default=timezone.now)
+    end_date = models.DateField(blank=True, null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        if self.customer:
+            return f"Subscription for {self.customer.name} - {self.quantity} liters"
+        return f"Subscription for {self.shop.name} - {self.quantity} liters"
+
+
+class SubscriptionException(models.Model):
+    subscription = models.ForeignKey(Subscription, related_name="exceptions", on_delete=models.CASCADE)
+    date = models.DateField()
+    quantity = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
+    skip = models.BooleanField(default=False)
     notes = models.TextField(blank=True, null=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='sales_payments'
-    )
+
+    class Meta:
+        unique_together = ('subscription', 'date')
+
+    def __str__(self):
+        return f"Exception {self.date} for {self.subscription}"

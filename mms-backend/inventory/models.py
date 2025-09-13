@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
+from django.db.models import Sum, F, Q
 
 class Supplier(models.Model):
     name = models.CharField(max_length=200)
@@ -48,6 +49,7 @@ class Stock(models.Model):
 
 
 
+
 class Purchase(models.Model):
     supplier = models.ForeignKey(Supplier, related_name='purchases', on_delete=models.PROTECT)
     product = models.ForeignKey(Product, related_name='purchases', on_delete=models.PROTECT)
@@ -65,25 +67,27 @@ class Purchase(models.Model):
         if self.extra_ice < 0:
             raise ValidationError("Extra ice cannot be negative.")
 
-    # <-- Replace this existing save method with the new one
     def save(self, *args, **kwargs):
         self.clean()
+
         if not self.total_amount:
-            # Cost only for milk liters, not for ice
             self.total_amount = self.quantity * self.rate
+
         super().save(*args, **kwargs)
 
-        # Update latest stock entry or create if none exists
-        latest_stock = Stock.objects.filter(product=self.product).order_by('-created_at').first()
-        if latest_stock:
-            latest_stock.quantity += self.quantity + self.extra_ice
-            latest_stock.save()
-        else:
-            Stock.objects.create(
-                product=self.product,
-                quantity=self.quantity + self.extra_ice
-            )
+        # Update or create stock record
+        stock, created = Stock.objects.get_or_create(product=self.product)
+        stock.quantity += self.quantity
+        stock.save()
 
+        # Log stock movement
+        StockMovement.objects.create(
+            product=self.product,
+            quantity=self.quantity,
+            movement_type='in',
+            notes=f"Purchase from {self.supplier.name}",
+            created_by=self.created_by,
+        )
 class StockMovement(models.Model):
     MOVEMENT_TYPE = (
         ('in', 'In'),
@@ -142,46 +146,55 @@ class Wastage(models.Model):
     )
 
     def clean(self):
-        # Quantity must be greater than 0
         if self.quantity <= 0:
             raise ValidationError("Wastage quantity must be greater than zero.")
 
-        # Ensure stock exists and has enough quantity
-        stock = Stock.objects.filter(product=self.product).first()
-        if not stock:
-            raise ValidationError(f"No stock record found for product '{self.product.name}'.")
-        if self.quantity > stock.quantity:
+        # Compute available stock using StockMovement
+        movements = StockMovement.objects.filter(product=self.product)
+        total_in = movements.filter(movement_type='in').aggregate(Sum('quantity'))['quantity__sum'] or 0
+        total_out = movements.filter(movement_type='out').aggregate(Sum('quantity'))['quantity__sum'] or 0
+        available_stock = total_in - total_out
+
+        if self.quantity > available_stock:
             raise ValidationError(
-                f"Cannot mark {self.quantity} as wastage; only {stock.quantity} available."
+                f"Cannot mark {self.quantity} as wastage; only {available_stock} available."
             )
 
     def save(self, *args, **kwargs):
-        # Validate before saving
+        # Run model validations first
         self.clean()
+
         super().save(*args, **kwargs)
 
         # Reduce stock
-        stock = Stock.objects.get(product=self.product)
+        stock, created = Stock.objects.get_or_create(product=self.product)
         stock.quantity -= self.quantity
         stock.save()
 
-        # Log stock movement (out)
+        # Log stock movement
         StockMovement.objects.create(
             product=self.product,
             quantity=self.quantity,
             movement_type='out',
             notes=f"Wastage: {self.reason}",
-            created_by=self.created_by
+            created_by=self.created_by,
         )
 
-    def __str__(self):
-        return f"Wastage - {self.product.name} ({self.quantity})"
-
-
 class Expense(models.Model):
-    name = models.CharField(max_length=255, default="Default Expense")
+    CATEGORY_CHOICES = [
+        ("electricity", "Electricity"),
+        ("salary", "Salary"),
+        ("food", "Food/Tea"),
+        ("services", "Services"),
+        ("petrol", "Petrol"),
+        ("other", "Other"),
+    ]
+
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="other")
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    date = models.DateField()
+    date = models.DateTimeField()  # 👈 changed
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name} - {self.amount}"
+        return f"{self.name} ({self.category}) - {self.amount}"

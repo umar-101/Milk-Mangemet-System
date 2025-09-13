@@ -4,7 +4,10 @@ from .serializers import (
     SupplierSerializer, ProductSerializer,
     StockSerializer, PurchaseSerializer, StockMovementSerializer, WastageSerializer, ExpenseSerializer
 )
-
+from rest_framework import viewsets, serializers
+from django.core.exceptions import ValidationError
+from .models import Wastage
+from .serializers import WastageSerializer
 
 class SupplierViewSet(viewsets.ModelViewSet):
     queryset = Supplier.objects.all()
@@ -36,8 +39,14 @@ class WastageViewSet(viewsets.ModelViewSet):
     serializer_class = WastageSerializer
 
     def perform_create(self, serializer):
-        serializer.save()  # stock movement handled in model save()
-
+        try:
+            # Save with created_by set
+            serializer.save(created_by=self.request.user)
+        except ValidationError as e:
+            # Convert Django ValidationError to DRF 400 error
+            raise serializers.ValidationError(
+                {"detail": e.messages if hasattr(e, "messages") else str(e)}
+            )
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     queryset = Expense.objects.all()

@@ -16,8 +16,8 @@ import Products from "../pages/inventory/components/Products/Products";
 import Stocks from "../pages/inventory/components/Stocks/Stocks";
 import Purchases from "../pages/inventory/components/Purchases/Purchases";
 import StockMovements from "../pages/inventory/components/StockMovements/StockMovements";
-import WastagesForm from "../pages/inventory/components/Wastages/WastagesForm";
-import ExpensesForm from "../pages/inventory/components/Expenses/Expenses";
+import Wastages from "../pages/inventory/components/Wastages/Wastages";
+import Expenses from "../pages/inventory/components/Expenses/Expenses";
 
 // Other pages
 import SalesPage from "../pages/sales/SalesPage";
@@ -53,8 +53,8 @@ const AppRoutes = () => {
           <Route path="stocks" element={<Stocks />} />
           <Route path="purchases" element={<Purchases />} />
           <Route path="stock-movements" element={<StockMovements />} />
-          <Route path="wastages" element={<WastagesForm />} />
-          <Route path="expenses" element={<ExpensesForm />} />
+          <Route path="wastages" element={<Wastages />} />
+          <Route path="expenses" element={<Expenses />} />
         </Route>
 
         {/* Other vendor pages */}
